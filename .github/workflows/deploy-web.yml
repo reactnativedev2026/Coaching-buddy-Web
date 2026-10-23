@@ -8,6 +8,12 @@ on:
     paths:
       - 'web/**'
       - '.github/workflows/deploy-web.yml'
+  schedule:
+    # 9:00 AM IST (03:30 UTC)
+    - cron: '30 3 * * *'
+    # 9:00 PM IST (15:30 UTC)
+    - cron: '30 15 * * *'
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -26,6 +32,11 @@ jobs:
           cache-dependency-path: 'web/package-lock.json'
 
       - name: 3. Install Dependencies & Build
+        env:
+          VITE_GTM_ID: GTM-WDHLBJJ8
+          VITE_GA4_MEASUREMENT_ID: G-6CYP5YMSMP
+          VITE_GSC_VERIFICATION: lDfVjne-nwT7x8k2-3EDtxKRt82CtZVBLICG0PldwcI
+          COACHING_BUDDY_SITEMAP_REQUIRE_API: 1
         run: |
           cd web
           npm install
