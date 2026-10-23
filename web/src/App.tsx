@@ -1,4 +1,5 @@
 import React from 'react';
+import AnalyticsRouteTracker from './components/common/AnalyticsRouteTracker';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import AuthProvider from './context/AuthContext';
 import StudentAuthProvider from './context/StudentAuthContext';
@@ -43,6 +44,7 @@ import TermsPage from './pages/student/TermsPage';
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
+      <AnalyticsRouteTracker />
       <AuthProvider>
         <StudentAuthProvider>
           <ToastProvider>

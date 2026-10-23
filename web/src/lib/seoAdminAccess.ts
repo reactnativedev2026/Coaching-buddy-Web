@@ -22,7 +22,7 @@ export function getAllowedSeoAdminEmails(): string[] {
   return configured.length ? configured : FALLBACK_SEO_ADMIN_EMAILS;
 }
 
-export function isSeoAdminIdentityAllowed(email?: string | null, _role?: string | null): boolean {
+export function isSeoAdminIdentityAllowed(email?: string | null): boolean {
   const normalizedEmail = String(email || '').trim().toLowerCase();
   return getAllowedSeoAdminEmails().includes(normalizedEmail);
 }
