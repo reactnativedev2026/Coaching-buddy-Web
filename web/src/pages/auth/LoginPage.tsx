@@ -39,9 +39,9 @@ export const LoginPage: React.FC = () => {
   const location = useLocation();
   const toast = useToast();
 
-  const shouldReturnToSeoAdmin = (userEmail?: string, userRole?: string) => {
+  const shouldReturnToSeoAdmin = (userEmail?: string, _userRole?: string) => {
     const fromPath = String((location.state as { from?: { pathname?: string } } | null)?.from?.pathname || '');
-    return fromPath.startsWith('/seo-admin') && isSeoAdminIdentityAllowed(userEmail, userRole);
+    return fromPath.startsWith('/seo-admin') && isSeoAdminIdentityAllowed(userEmail);
   };
 
   // Initialize Google Identity Services
