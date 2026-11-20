@@ -57,6 +57,8 @@ export interface StudentInstitute {
   name: string;
   ownerName: string;
   amountPaid?: string;
+  isPremium?: boolean;
+  isVerified?: boolean;
   shortDescription: string;
   longDescription: string;
   images: {

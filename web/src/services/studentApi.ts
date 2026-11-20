@@ -89,6 +89,8 @@ export function mapCollegeData(item: any): StudentInstitute {
     id: item.uid || item.id || '',
     name: item.name || '',
     amountPaid: item.amount_paid || item.amountPaid,
+    isPremium: Number(item.is_premium ?? item.isPremium) === 1 || item.is_premium === true || item.isPremium === true,
+    isVerified: Number(item.status) === 1 || Number(item.is_verified ?? item.isVerified) === 1 || item.is_verified === true || item.isVerified === true,
     ownerName: item.owner_name || item.ownerName || '',
     shortDescription: stripHtml(item.short_desc || item.shortDescription || ''),
     longDescription: stripHtml(item.long_desc || item.longDescription || ''),

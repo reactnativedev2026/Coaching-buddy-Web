@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { MapPin, Star, Heart, CheckCircle, ChevronRight } from 'lucide-react';
+import { MapPin, Star, Heart, CheckCircle, ChevronRight, Crown } from 'lucide-react';
 import { StudentInstitute } from '../../types/student';
 import { useStudentAuth } from '../../context/StudentAuthContext';
 import { useToast } from '../common/Toast';
@@ -72,10 +72,10 @@ export const InstituteCard: React.FC<InstituteCardProps> = ({ institute, horizon
         <div className="p-5 flex-1 flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between gap-2 mb-2">
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60">
-                <CheckCircle className="w-3 h-3" />
-                Verified Academy
-              </span>
+              <div className="flex gap-1.5">
+                {institute.isVerified && <span className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-0.5 rounded-full border border-emerald-200/60"><CheckCircle className="w-3 h-3" />Verified Academy</span>}
+                {institute.isPremium && <span className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-700 bg-amber-50 px-2.5 py-0.5 rounded-full border border-amber-200/60"><Crown className="w-3 h-3" />Featured</span>}
+              </div>
               <div className="flex items-center gap-1 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md text-amber-700 text-xs font-bold">
                 <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                 <span>{averageRating}/10</span>
@@ -161,8 +161,8 @@ export const InstituteCard: React.FC<InstituteCardProps> = ({ institute, horizon
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div>
           <div className="flex items-center gap-1 text-[11px] font-bold text-emerald-600 mb-1">
-            <CheckCircle className="w-3.5 h-3.5" />
-            <span>Verified Institute</span>
+            {institute.isVerified && <><CheckCircle className="w-3.5 h-3.5" /><span>Verified Institute</span></>}
+            {institute.isPremium && <span className="ml-1 inline-flex items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-amber-700"><Crown className="w-3 h-3" />Featured</span>}
           </div>
 
           <Link to={buildInstitutePath(institute)}>

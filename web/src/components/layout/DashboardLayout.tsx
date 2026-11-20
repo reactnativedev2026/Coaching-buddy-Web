@@ -1,5 +1,6 @@
 import {
   CalendarCheck,
+  Crown,
   ChevronRight,
   GraduationCap,
   Image as ImageIcon,
@@ -9,7 +10,6 @@ import {
   MessageCircle,
   Phone,
   Settings,
-  Tag,
   X,
 } from 'lucide-react';
 import React, { useState } from 'react';
@@ -49,7 +49,7 @@ export const DashboardLayout: React.FC = () => {
     { label: 'Courses', path: '/courses', icon: <GraduationCap className="w-5 h-5" /> },
     { label: 'My Bookings', path: '/bookings', icon: <CalendarCheck className="w-5 h-5" /> },
     { label: 'Media & Gallery', path: '/media', icon: <ImageIcon className="w-5 h-5" /> },
-    { label: 'Offers & Discounts', path: '/offers', icon: <Tag className="w-5 h-5" /> },
+    { label: 'Subscription', path: '/subscription', icon: <Crown className="w-5 h-5" /> },
     { label: 'Institute Info', path: '/settings', icon: <Settings className="w-5 h-5" /> },
   ];
 

@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   Tag,
   Plus,
   Percent,
-  Calendar,
-  Trash2,
   Gift,
-  Clock,
 } from 'lucide-react';
 import Header from '../../components/common/Header';
 import Card from '../../components/common/Card';
@@ -14,59 +12,32 @@ import Button from '../../components/common/Button';
 import InputField from '../../components/common/InputField';
 import Badge from '../../components/common/Badge';
 import Modal from '../../components/common/Modal';
-import ConfirmationModal from '../../components/common/ConfirmationModal';
 import { useToast } from '../../components/common/Toast';
+import { useAuth } from '../../context/AuthContext';
+import { useInstituteSubscription } from '../../hooks/useInstituteSubscription';
+import api from '../../services/api';
 
 export interface OfferItem {
   id: string;
   offerName: string;
   discountPercentage: string;
-  validTill: string;
-  applicableCourses: string;
-  isActive: boolean;
 }
 
-const INITIAL_OFFERS: OfferItem[] = [
-  {
-    id: 'offer_1',
-    offerName: 'Early Bird JEE Main 2027 Scholarship',
-    discountPercentage: '25',
-    validTill: '2026-10-31',
-    applicableCourses: 'IIT-JEE 2-Year Program',
-    isActive: true,
-  },
-  {
-    id: 'offer_2',
-    offerName: 'Independence Day Special Medical Discount',
-    discountPercentage: '15',
-    validTill: '2026-09-15',
-    applicableCourses: 'NEET-UG Masterclass',
-    isActive: true,
-  },
-  {
-    id: 'offer_3',
-    offerName: 'Foundation Olympiad Fee Waiver',
-    discountPercentage: '30',
-    validTill: '2026-08-30',
-    applicableCourses: 'Class 9-10 Foundation',
-    isActive: false,
-  },
-];
+const INITIAL_OFFERS: OfferItem[] = [];
 
 export const OffersPage: React.FC = () => {
   const toast = useToast();
+  const navigate = useNavigate();
+  const { store } = useAuth();
+  const { isPremium, isLoading: isSubscriptionLoading } = useInstituteSubscription();
   const [offers, setOffers] = useState<OfferItem[]>(INITIAL_OFFERS);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-  const [deleteOfferId, setDeleteOfferId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     offerName: '',
     discountPercentage: '',
-    validTill: '2026-12-31',
-    applicableCourses: 'All Courses',
-    isActive: true,
   });
 
   const validate = () => {
@@ -83,13 +54,24 @@ export const OffersPage: React.FC = () => {
     return Object.keys(err).length === 0;
   };
 
-  const handleCreateOffer = (e: React.FormEvent) => {
+  const handleCreateOffer = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
     setIsSaving(true);
 
-    setTimeout(() => {
+    if (!store?.id) {
+      toast.error('Institute not found', 'Please sign out and sign in again.');
+      setIsSaving(false);
+      return;
+    }
+
+    try {
+      const response = await api.put(`/store/offer/update/${store.id}`, {
+        discountTitle: formData.offerName.trim(),
+        discountPercentage: Number(formData.discountPercentage),
+      });
+      if (!response.data?.status) throw new Error(response.data?.message || 'Unable to save offer');
       const newOffer: OfferItem = {
         id: 'offer_' + Date.now(),
         ...formData,
@@ -102,32 +84,28 @@ export const OffersPage: React.FC = () => {
       setFormData({
         offerName: '',
         discountPercentage: '',
-        validTill: '2026-12-31',
-        applicableCourses: 'All Courses',
-        isActive: true,
       });
-    }, 400);
+    } catch (error: any) {
+      toast.error('Could not save offer', error.response?.data?.message || error.message || 'Please try again');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
-  const handleToggleOffer = (id: string) => {
-    setOffers((prev) =>
-      prev.map((o) => {
-        if (o.id === id) {
-          const next = !o.isActive;
-          toast.info(next ? 'Offer Activated' : 'Offer Deactivated');
-          return { ...o, isActive: next };
-        }
-        return o;
-      })
+  if (isSubscriptionLoading) {
+    return <Card className="p-8 text-center text-sm text-slate-500">Checking your subscription…</Card>;
+  }
+
+  if (!isPremium) {
+    return (
+      <Card className="mx-auto max-w-2xl p-8 text-center">
+        <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-amber-50 text-amber-600"><Gift className="h-7 w-7" /></div>
+        <h1 className="text-xl font-bold text-slate-800">Offers & discounts are a Premium feature</h1>
+        <p className="mx-auto mt-2 max-w-md text-sm text-slate-500">Activate an institute subscription to publish offers that students can see.</p>
+        <Button className="mt-6" variant="primary" onClick={() => navigate('/subscription')}>View Plans</Button>
+      </Card>
     );
-  };
-
-  const handleDeleteOffer = () => {
-    if (!deleteOfferId) return;
-    setOffers((prev) => prev.filter((o) => o.id !== deleteOfferId));
-    setDeleteOfferId(null);
-    toast.success('Offer Deleted', 'The discount voucher was removed');
-  };
+  }
 
   return (
     <div className="space-y-6 sm:space-y-8 animate-fade-in">
@@ -192,51 +170,16 @@ export const OffersPage: React.FC = () => {
                     <span>{offer.discountPercentage}% OFF</span>
                   </span>
 
-                  <Badge variant={offer.isActive ? 'success' : 'neutral'} size="sm" dot>
-                    {offer.isActive ? 'Active' : 'Expired'}
-                  </Badge>
+                  <Badge variant="success" size="sm" dot>Active</Badge>
                 </div>
 
                 <h3 className="text-base sm:text-lg font-bold text-[#1E293B] mt-2 line-clamp-1">
                   {offer.offerName}
                 </h3>
 
-                <div className="space-y-2 mt-3 pt-3 border-t border-slate-100 text-xs text-[#64748B]">
-                  <div className="flex items-center justify-between">
-                    <span>Applicable Courses:</span>
-                    <span className="font-semibold text-[#1E293B]">{offer.applicableCourses}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5" />
-                      <span>Valid Till:</span>
-                    </span>
-                    <span className="font-semibold text-[#1E293B]">{offer.validTill}</span>
-                  </div>
-                </div>
               </div>
 
-              {/* Bottom Actions */}
-              <div className="flex items-center justify-between pt-4 mt-4 border-t border-slate-100">
-                <button
-                  type="button"
-                  onClick={() => handleToggleOffer(offer.id)}
-                  className={`text-xs font-bold transition-colors ${
-                    offer.isActive ? 'text-amber-600 hover:text-amber-700' : 'text-emerald-600 hover:text-emerald-700'
-                  }`}
-                >
-                  {offer.isActive ? 'Deactivate' : 'Activate'}
-                </button>
-
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-[#EF4444] hover:bg-red-50 p-1.5 h-auto"
-                  onClick={() => setDeleteOfferId(offer.id)}
-                >
-                  <Trash2 className="w-4 h-4" />
-                </Button>
-              </div>
+              <p className="mt-4 border-t border-slate-100 pt-4 text-xs text-slate-500">Publishing a new offer replaces the current institute offer.</p>
             </Card>
           ))}
         </div>
@@ -296,29 +239,6 @@ export const OffersPage: React.FC = () => {
             required
           />
 
-          <InputField
-            label="Valid Till Date"
-            type="date"
-            value={formData.validTill}
-            onChange={(e) => setFormData({ ...formData, validTill: e.target.value })}
-            icon={<Calendar className="w-4 h-4" />}
-            required
-          />
-
-          <div className="space-y-1.5 text-left">
-            <label className="text-xs font-semibold text-[#1E293B]">Applicable Courses</label>
-            <select
-              value={formData.applicableCourses}
-              onChange={(e) => setFormData({ ...formData, applicableCourses: e.target.value })}
-              className="w-full px-3.5 py-2.5 bg-white border border-[#E2E8F0] rounded-xl text-sm text-[#1E293B] focus:outline-none focus:ring-2 focus:ring-[#006EFF]/20 focus:border-[#006EFF]"
-            >
-              <option value="All Courses">All Courses</option>
-              <option value="IIT-JEE Programs Only">IIT-JEE Programs Only</option>
-              <option value="NEET-UG Programs Only">NEET-UG Programs Only</option>
-              <option value="Foundation Batches Only">Foundation Batches Only</option>
-            </select>
-          </div>
-
           {/* Modal Actions */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-100">
             <Button
@@ -339,16 +259,6 @@ export const OffersPage: React.FC = () => {
         </form>
       </Modal>
 
-      {/* Delete Offer Confirmation Modal */}
-      <ConfirmationModal
-        isOpen={!!deleteOfferId}
-        onClose={() => setDeleteOfferId(null)}
-        onConfirm={handleDeleteOffer}
-        title="Delete Offer?"
-        message="Are you sure you want to permanently remove this discount offer?"
-        confirmText="Delete Offer"
-        variant="danger"
-      />
     </div>
   );
 };

@@ -4,7 +4,6 @@ import {
   GraduationCap,
   Image as ImageIcon,
   Building2,
-  Tag,
   Phone,
   MessageCircle,
   Shield,
@@ -28,11 +27,13 @@ import Modal from '../../components/common/Modal';
 import { useToast } from '../../components/common/Toast';
 import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
+import { useInstituteSubscription } from '../../hooks/useInstituteSubscription';
 
 export const DashboardPage: React.FC = () => {
   const { store, logout, updateStoreStatusState } = useAuth();
   const navigate = useNavigate();
   const toast = useToast();
+  const { isPremium, isLoading: isSubscriptionLoading } = useInstituteSubscription();
 
   // State
   const [leads, setLeads] = useState({ phone: 0, whatsapp: 0, share: 0 });
@@ -47,8 +48,9 @@ export const DashboardPage: React.FC = () => {
   const isStoreOnline = store?.status === 1;
 
   useEffect(() => {
-    fetchLeads();
-  }, [store?.id]);
+    if (isPremium) fetchLeads();
+    else setLeads({ phone: 0, whatsapp: 0, share: 0 });
+  }, [store?.id, isPremium]);
 
   const fetchLeads = async () => {
     if (!store?.id) return;
@@ -130,12 +132,6 @@ export const DashboardPage: React.FC = () => {
       description: 'Edit institute address, contact phone, and timings',
       icon: <Building2 className="w-5 h-5 text-emerald-600" />,
       action: () => navigate('/settings'),
-    },
-    {
-      title: 'Add Offers & Discounts',
-      description: 'Create promotional festival discount vouchers',
-      icon: <Tag className="w-5 h-5 text-amber-500" />,
-      action: () => navigate('/offers'),
     },
     {
       title: 'Call Partner Support',
@@ -264,7 +260,7 @@ export const DashboardPage: React.FC = () => {
             <div>
               <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Phone Inquiries</p>
               <h3 className="text-2xl sm:text-3xl font-black text-[#1E293B] mt-0.5">
-                {isLeadsLoading ? '...' : leads.phone}
+                {isSubscriptionLoading || isLeadsLoading ? '...' : isPremium ? leads.phone : '🔒'}
               </h3>
               <p className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
                 <span>+12% this month</span>
@@ -280,7 +276,7 @@ export const DashboardPage: React.FC = () => {
             <div>
               <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">WhatsApp Chats</p>
               <h3 className="text-2xl sm:text-3xl font-black text-[#1E293B] mt-0.5">
-                {isLeadsLoading ? '...' : leads.whatsapp}
+                {isSubscriptionLoading || isLeadsLoading ? '...' : isPremium ? leads.whatsapp : '🔒'}
               </h3>
               <p className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
                 <span>+24% this month</span>
@@ -296,7 +292,7 @@ export const DashboardPage: React.FC = () => {
             <div>
               <p className="text-xs font-bold text-[#64748B] uppercase tracking-wider">Profile Shares</p>
               <h3 className="text-2xl sm:text-3xl font-black text-[#1E293B] mt-0.5">
-                {isLeadsLoading ? '...' : leads.share}
+                {isSubscriptionLoading || isLeadsLoading ? '...' : isPremium ? leads.share : '🔒'}
               </h3>
               <p className="text-[11px] text-amber-600 font-semibold flex items-center gap-1 mt-0.5">
                 <span>Direct student referrals</span>

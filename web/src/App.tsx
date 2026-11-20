@@ -16,7 +16,7 @@ import DashboardPage from './pages/dashboard/DashboardPage';
 import CoursesPage from './pages/courses/CoursesPage';
 import BookingsPage from './pages/bookings/BookingsPage';
 import MediaPage from './pages/media/MediaPage';
-import OffersPage from './pages/offers/OffersPage';
+import SubscriptionPage from './pages/subscription/SubscriptionPage';
 import SettingsPage from './pages/settings/SettingsPage';
 import DesignSystemPreview from './pages/DesignSystemPreview';
 import SeoAdminPage from './pages/seo/SeoAdminPage';
@@ -127,7 +127,7 @@ export const App: React.FC = () => {
                   <Route path="/courses" element={<CoursesPage />} />
                   <Route path="/bookings" element={<BookingsPage />} />
                   <Route path="/media" element={<MediaPage />} />
-                  <Route path="/offers" element={<OffersPage />} />
+                  <Route path="/subscription" element={<SubscriptionPage />} />
                   <Route path="/settings" element={<SettingsPage />} />
                   <Route path="/design-system" element={<DesignSystemPreview />} />
 
@@ -137,7 +137,7 @@ export const App: React.FC = () => {
                   <Route path="/institute/courses" element={<CoursesPage />} />
                   <Route path="/institute/bookings" element={<BookingsPage />} />
                   <Route path="/institute/media" element={<MediaPage />} />
-                  <Route path="/institute/offers" element={<OffersPage />} />
+                  <Route path="/institute/subscription" element={<SubscriptionPage />} />
                   <Route path="/institute/settings" element={<SettingsPage />} />
                 </Route>
               </Route>
